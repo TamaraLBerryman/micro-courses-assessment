@@ -1,0 +1,154 @@
+MicroCourses - Creative Classes Platform
+MicroCourses is a modern, scalable, and responsive web application designed to showcase creative classes. Built using the MERN stack (MongoDB, Express.js, React, Node.js), this application allows users to browse a catalog of courses, view detailed module breakdowns, and submit enrollment inquiries.
+
+This project demonstrates full-stack development capabilities, including RESTful API design, database modeling, frontend state management, and responsive CSS layouts. It also includes architectural plans for scaling via caching, load balancing, and high availability strategies.
+
+eatures
+Course Catalog: A responsive grid layout displaying all available courses with key details (Cost, Duration).
+
+Detailed Course View: A dedicated page for each course featuring an interactive accordion module list.
+
+Enrollment & Contact: Functional forms for user engagement with validation feedback.
+
+Responsive Design: A mobile-first approach ensuring optimal viewing on desktops, tablets, and mobile devices.
+
+RESTful API: A robust backend serving JSON data to the React frontend.
+
+Tech Stack
+Frontend: React.js, React Router DOM, Axios, CSS3.
+
+Backend: Node.js, Express.js.
+
+Database: MongoDB, Mongoose.
+
+Tools: Git, Postman
+
+Setup & Installation Instructions
+Follow these steps to run the application locally on your machine.
+
+Prerequisites
+Node.js (v14+)
+
+MongoDB installed locally or a MongoDB Atlas connection string.
+
+1. Clone the Repository
+Bash
+
+git clone https://github.com/your-username/microcourses.git
+cd microcourses
+2. Backend Setup
+Navigate to the server directory, install dependencies, and start the server.
+
+Bash
+
+cd server
+npm install
+
+# Start the backend server (Runs on Port 5000)
+node server.js
+Note: Ensure your MongoDB service is running (mongod). The application connects to mongodb://127.0.0.1:27017/microcourses by default.
+
+3. Frontend Setup
+Open a new terminal window, navigate to the client directory, and start the React application.
+
+Bash
+
+cd client
+npm install
+
+# Start the React development server (Runs on Port 5173 or 3000)
+npm run dev
+4. Seeding Data (Optional)
+If your database is empty, you can populate it using Postman to send a POST request to http://localhost:5000/courses with the following JSON structure:
+
+JSON
+
+{
+  "title": "Pottery",
+  "description": "This comprehensive course covers everything from preparing clay to final glazing.",
+  "instructor": "Ava Chen",
+  "duration": 20,
+  "category": "Creative Arts",
+  "cost": 900,
+  "image": "https://images.unsplash.com/photo-12345...",
+  "modules": [
+    { "title": "Week 1: Clay Preparation", "description": "Safety and basics." },
+    { "title": "Week 2: Pinch Pots", "description": "Basic shaping." }
+  ]
+}
+
+API Documentation
+The backend exposes the following RESTful endpoints:
+
+Method	Endpoint	Description
+GET	/courses	Retrieves a list of all available courses.
+GET	/courses/:id	Retrieves detailed information for a specific course by ID.
+POST	/courses	Adds a new course to the database.
+
+Export to Sheets
+
+Advanced Architecture Report (Component 4)
+This section outlines the architectural strategies designed to ensure the application is scalable, fast, and reliable in a high-traffic production environment.
+
+1. Caching Strategy
+To minimise database load and reduce latency for the end-user, I would implement Redis as an in-memory data store using the Cache-Aside Pattern.
+
+Implementation:
+
+Read: When a request is made to GET /courses, the server first checks Redis. If the data exists (Cache Hit), it is returned immediately. If not (Cache Miss), the server queries MongoDB, returns the data, and stores it in Redis for future requests.
+
+Write (Invalidation): When a new course is added via POST /courses, the relevant cache keys are deleted (invalidated) to ensure users do not see stale data.
+
+Benefit: Significantly reduces response time from ~200ms (Database) to ~5ms (Cache).
+
+2. Load Balancing
+To handle concurrent user traffic without crashing a single server instance, I would implement Nginx as a Reverse Proxy Load Balancer.
+
+Implementation:
+
+Multiple instances of the Node.js backend would be deployed (e.g., Ports 5000, 5001, 5002).
+
+Nginx would sit in front of these instances, accepting all incoming traffic.
+
+Using the Round Robin algorithm, Nginx distributes requests sequentially across the available servers.
+
+Benefit: Prevents server overload and provides redundancy; if one instance fails, traffic is routed to the remaining healthy instances.
+
+3. High Availability (HA)
+To ensure the application remains operational during failures (Disaster Recovery).
+
+Application Level:
+
+I would utilize PM2 (Process Manager 2) in Cluster Mode. PM2 abstracts the complexity of managing Node processes and provides "Zero Downtime Reloads." If a process crashes, PM2 automatically restarts it instantly.
+
+Database Level (MongoDB):
+
+I would deploy a Replica Set architecture consisting of one Primary Node (Read/Write) and two Secondary Nodes (Read-Only copies).
+
+Disaster Scenario: If the Primary node fails due to hardware issues, the Secondary nodes hold an automatic election to promote a new Primary.
+
+Benefit: Guarantees 99.99% uptime and data persistence even in the event of critical server failures.
+
+Project Structure
+Plaintext
+
+/micro-courses
+│
+├── /client (Frontend)
+│   ├── /public
+│   ├── /index.html
+│   ├── /src
+│   │   ├── /components (Header, Footer)
+│   │   ├── /pages (Home, CourseDetail, Contact)
+│   │   ├── App.jsx
+│   │   ├── App.css
+│   │   └── main.jsx
+│
+├── /server (Backend)
+│   ├── /models (Course Schema)
+│   ├── index.js (Express App & Routes)
+│   └── package.json
+│
+└── README.md
+
+Author: Tamara Berryman
